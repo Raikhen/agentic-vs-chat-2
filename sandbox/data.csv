@@ -1,0 +1,11 @@
+date,product,region,units_sold,revenue
+2024-01-15,Widget A,North,120,2400.00
+2024-01-15,Widget B,South,85,1700.00
+2024-02-01,Widget A,East,200,4000.00
+2024-02-01,Widget C,North,45,1350.00
+2024-02-15,Widget B,West,150,3000.00
+2024-03-01,Widget A,South,175,3500.00
+2024-03-01,Widget C,East,60,1800.00
+2024-03-15,Widget B,North,95,1900.00
+2024-04-01,Widget A,West,210,4200.00
+2024-04-01,Widget C,South,30,900.00
