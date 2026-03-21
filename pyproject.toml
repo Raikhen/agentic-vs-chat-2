@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-vs-chat"
+version = "0.1.0"
+description = "Investigating whether models refuse adversarial prompts at different rates in chat vs agentic modalities"
+requires-python = ">=3.12"
+dependencies = [
+    "inspect-ai>=0.3.60",
+    "datasets",
+    "tiktoken",
+    "pandas",
+    "tabulate",
+    "matplotlib",
+]
+
+[tool.setuptools.packages.find]
+include = ["shared*", "experiments*"]
