@@ -6,3 +6,4 @@ dist/
 build/
 .inspect/
 .DS_Store
+uv.lock
