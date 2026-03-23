@@ -38,13 +38,32 @@ def bootstrap_ci(
     )
 
 
+def _complete_models(df: pd.DataFrame) -> list[str]:
+    """Return models that have data for all four conditions."""
+    conditions = set(CONDITION_ORDER)
+    complete = []
+    for model, group in df.groupby("model"):
+        if conditions.issubset(group["condition"].unique()):
+            counts = group.groupby("condition").size()
+            if counts.min() >= 400:
+                complete.append(model)
+    return complete
+
+
 def plot_refusal_by_condition(df: pd.DataFrame, out_dir: Path):
-    """Bar chart of mean refusal score per condition with 95% bootstrap CIs."""
-    conditions = [c for c in CONDITION_ORDER if c in df["condition"].unique()]
+    """Bar chart of mean refusal score per condition with 95% bootstrap CIs.
+
+    Uses only models with complete data across all conditions to avoid
+    Simpson's Paradox from unbalanced sample sizes.
+    """
+    complete = _complete_models(df)
+    df_complete = df[df["model"].isin(complete)]
+
+    conditions = [c for c in CONDITION_ORDER if c in df_complete["condition"].unique()]
     means, ci_lo, ci_hi, ns = [], [], [], []
 
     for cond in conditions:
-        scores = df.loc[df["condition"] == cond, "score"].values
+        scores = df_complete.loc[df_complete["condition"] == cond, "score"].values
         m = scores.mean()
         lo, hi = bootstrap_ci(scores)
         means.append(m)
@@ -71,7 +90,12 @@ def plot_refusal_by_condition(df: pd.DataFrame, out_dir: Path):
     ax.set_xticklabels(labels, fontsize=10)
     ax.set_ylabel("Mean Refusal Score", fontsize=11)
     ax.set_ylim(0, 1.05)
-    ax.set_title("Refusal Rate by Condition (95% CI)", fontsize=13, pad=10)
+    model_names = [m.split("/")[-1] for m in sorted(complete)]
+    ax.set_title(
+        f"Refusal Rate by Condition (95% CI)\nComplete models only: {', '.join(model_names)}",
+        fontsize=12,
+        pad=10,
+    )
     ax.spines[["top", "right"]].set_visible(False)
 
     # Annotate sample sizes
@@ -247,7 +271,7 @@ def main():
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    df = load_logs(args.log_dir)
+    df, _errors_df = load_logs(args.log_dir)
     if df.empty:
         print("No data to plot.")
         return
@@ -258,7 +282,6 @@ def main():
     print(f"Loaded {n_samples} samples ({n_models} models, {n_conditions} conditions)")
 
     plot_refusal_by_condition(df, out_dir)
-    plot_refusal_by_condition_and_model(df, out_dir)
     plot_refusal_by_condition_per_model(df, out_dir)
 
 

@@ -2,10 +2,13 @@
 
 from inspect_ai import Task, task
 from inspect_ai.model import GenerateConfig
-from inspect_ai.solver import generate, system_message, use_tools
+from inspect_ai.solver import system_message, use_tools
 from inspect_ai.tool import python, text_editor
 
+import shared.persistent_sandbox  # noqa: F401  # register persistent_docker sandbox
+
 from shared.dataset import fortress_dataset
+from shared.generate import resilient_generate
 from shared.scorer import refusal_scorer
 from shared.system_prompts import CODING_ASSISTANT_PROMPT
 
@@ -23,17 +26,17 @@ def _make_task(
         solvers.append(system_message(CODING_ASSISTANT_PROMPT))
 
     if include_tools:
-        solvers.append(use_tools([python(), text_editor()]))
+        solvers.append(use_tools([python(timeout=30), text_editor()]))
 
-    solvers.append(generate())
+    solvers.append(resilient_generate())
 
-    sandbox = "docker" if include_tools else None
+    sandbox = "persistent_docker" if include_tools else None
 
     return Task(
         dataset=fortress_dataset(limit=limit),
         solver=solvers,
         scorer=refusal_scorer(),
-        config=GenerateConfig(temperature=0),
+        config=GenerateConfig(temperature=0, max_tokens=4096),
         sandbox=sandbox,
         metadata={"condition": condition},
     )

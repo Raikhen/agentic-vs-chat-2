@@ -3,6 +3,9 @@
 import argparse
 import importlib
 
+import shared.fallback_model  # noqa: F401  # register anthropic_fallback provider
+import shared.persistent_sandbox  # noqa: F401  # register persistent_docker sandbox
+
 from inspect_ai import eval
 
 _task_mod = importlib.import_module("experiments.01_unrelated_tools.task")
@@ -12,8 +15,8 @@ tools_only = _task_mod.tools_only
 system_prompt_and_tools = _task_mod.system_prompt_and_tools
 
 DEFAULT_MODELS = [
-    "openrouter/anthropic/claude-haiku-4.5",
-    "openrouter/openai/gpt-5.4-mini",
+    "anthropic_fallback/claude-haiku-4.5",
+    "openai/gpt-5.4-mini",
     "openrouter/google/gemini-3-flash-preview",
     "openrouter/deepseek/deepseek-v3.2",
     "openrouter/qwen/qwen3.5-flash-02-23",
@@ -40,7 +43,7 @@ def parse_args():
     parser.add_argument(
         "--max-connections",
         type=int,
-        default=10,
+        default=50,
         help="Max concurrent API connections per model",
     )
     parser.add_argument(
@@ -81,6 +84,7 @@ def main():
         model=args.models,
         max_tasks=args.max_tasks,
         max_connections=args.max_connections,
+        fail_on_error=False,
         log_dir=args.log_dir,
     )
 
