@@ -37,6 +37,7 @@ def _make_task(
         solver=solvers,
         scorer=refusal_scorer(),
         config=GenerateConfig(temperature=0, max_tokens=4096),
+        message_limit=10,
         sandbox=sandbox,
         metadata={"condition": condition},
     )

@@ -23,6 +23,25 @@ CONDITION_LABELS = {
     "system_prompt_and_tools": "System Prompt\n+ Tools",
 }
 
+CONDITION_COLORS = {
+    "bare_chat": "#8C8C8C",            # neutral gray (baseline)
+    "system_prompt_only": "#4A90D9",    # blue (structure)
+    "tools_only": "#E8913A",            # amber (capability)
+    "system_prompt_and_tools": "#E8913A",  # orange base with blue stripes
+}
+
+COMBINED_CONDITION = "system_prompt_and_tools"
+
+
+def _apply_stripes(bars, conditions):
+    """Add orange diagonal stripes to the combined condition bar."""
+    for bar, cond in zip(bars, conditions):
+        if cond == COMBINED_CONDITION:
+            bar.set_hatch("//")
+            bar.set_edgecolor("#4A90D9")
+            bar.set_linewidth(0.5)
+    plt.rcParams["hatch.linewidth"] = 4.5
+
 
 def bootstrap_ci(
     scores: np.ndarray, n_boot: int = 10_000, ci: float = 0.95
@@ -38,32 +57,39 @@ def bootstrap_ci(
     )
 
 
-def _complete_models(df: pd.DataFrame) -> list[str]:
-    """Return models that have data for all four conditions."""
+def balanced_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Return a balanced subset: for each model, keep only sample IDs present in all 4 conditions."""
     conditions = set(CONDITION_ORDER)
-    complete = []
+    rows = []
     for model, group in df.groupby("model"):
-        if conditions.issubset(group["condition"].unique()):
-            counts = group.groupby("condition").size()
-            if counts.min() >= 400:
-                complete.append(model)
-    return complete
+        present_conditions = set(group["condition"].unique())
+        if not conditions.issubset(present_conditions):
+            continue
+        # Find sample IDs that appear in every condition
+        ids_per_cond = [
+            set(group.loc[group["condition"] == c, "sample_id"]) for c in CONDITION_ORDER
+        ]
+        common_ids = ids_per_cond[0]
+        for s in ids_per_cond[1:]:
+            common_ids &= s
+        if common_ids:
+            rows.append(group[group["sample_id"].isin(common_ids)])
+    return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
 
 
 def plot_refusal_by_condition(df: pd.DataFrame, out_dir: Path):
     """Bar chart of mean refusal score per condition with 95% bootstrap CIs.
 
-    Uses only models with complete data across all conditions to avoid
-    Simpson's Paradox from unbalanced sample sizes.
+    Uses balanced samples (per-model intersection of sample IDs across all
+    conditions) to avoid Simpson's Paradox from unbalanced sample sizes.
     """
-    complete = _complete_models(df)
-    df_complete = df[df["model"].isin(complete)]
+    df_bal = balanced_df(df)
 
-    conditions = [c for c in CONDITION_ORDER if c in df_complete["condition"].unique()]
+    conditions = [c for c in CONDITION_ORDER if c in df_bal["condition"].unique()]
     means, ci_lo, ci_hi, ns = [], [], [], []
 
     for cond in conditions:
-        scores = df_complete.loc[df_complete["condition"] == cond, "score"].values
+        scores = df_bal.loc[df_bal["condition"] == cond, "score"].values
         m = scores.mean()
         lo, hi = bootstrap_ci(scores)
         means.append(m)
@@ -75,24 +101,25 @@ def plot_refusal_by_condition(df: pd.DataFrame, out_dir: Path):
     x = np.arange(len(conditions))
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
+    bar_colors = [CONDITION_COLORS[c] for c in conditions]
     bars = ax.bar(
         x,
         means,
         yerr=[ci_lo, ci_hi],
         capsize=5,
-        color="#5B8DB8",
+        color=bar_colors,
         edgecolor="white",
         width=0.55,
         error_kw={"linewidth": 1.5, "color": "#333"},
     )
+    _apply_stripes(bars, conditions)
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=10)
     ax.set_ylabel("Mean Refusal Score", fontsize=11)
     ax.set_ylim(0, 1.05)
-    model_names = [m.split("/")[-1] for m in sorted(complete)]
     ax.set_title(
-        f"Refusal Rate by Condition (95% CI)\nComplete models only: {', '.join(model_names)}",
+        "Refusal Rate by Condition (95% CI)\nBalanced samples across all models",
         fontsize=12,
         pad=10,
     )
@@ -209,16 +236,18 @@ def plot_refusal_by_condition_per_model(df: pd.DataFrame, out_dir: Path):
         x = np.arange(len(present))
         labels = [CONDITION_LABELS.get(c, c) for c in present]
 
+        bar_colors = [CONDITION_COLORS[c] for c in present]
         bars = ax.bar(
             x,
             means,
             yerr=[ci_lo, ci_hi],
             capsize=5,
-            color="#5B8DB8",
+            color=bar_colors,
             edgecolor="white",
             width=0.55,
             error_kw={"linewidth": 1.5, "color": "#333"},
         )
+        _apply_stripes(bars, present)
 
         for bar, n in zip(bars, ns):
             ax.text(
