@@ -1,10 +1,10 @@
 # Agentic v.s. Chat
 
-I tested whether adding SWE agentic scaffolding (system prompts and/or tool access) changes how often LLMs refuse harmful requests. Across 6 models and ~12,000 scored samples, I find that agentic scaffolding **does not decrease refusal** — if anything, it slightly increases it. The only model with a statistically significant per-model effect is DeepSeek v3.2, which refuses *more* when given tools or a system prompt (+0.10 on a 0–1 scale, p < 0.0001). In aggregate, adding a system prompt increases refusal by ~0.04 points (p = 0.0005). These results are consistent with [aryaj (2026)](https://www.lesswrong.com/posts/Tk4SF8qFdMrzGJGGw/how-well-do-models-follow-their-constitutions), who found that "complex scaffolds don't seem to affect agent alignment much."
+As LLMs are increasingly deployed as agents with tool access and system prompts, a natural concern arises: does agentic scaffolding make models less safe? I tested this across 6 models, 4 conditions, and ~12,000 scored samples. The answer is no — agentic scaffolding **does not decrease refusal** of harmful requests. In fact, the only statistically significant per-model effect goes the *other* direction: DeepSeek v3.2 refuses *more* with agentic scaffolding. These results are consistent with [aryaj (2026)](https://www.lesswrong.com/posts/Tk4SF8qFdMrzGJGGw/how-well-do-models-follow-their-constitutions), who found that "complex scaffolds don't seem to affect agent alignment much."
 
 ## Methodology
 
-I test 500 adversarial prompts from the Fortress dataset across 4 conditions:
+I test 500 adversarial prompts from the [Fortress](https://huggingface.co/datasets/AI-Secure/Fortress) dataset across 4 conditions:
 
 1. **Bare Chat** — no system prompt, no tools
 2. **System Prompt** — coding assistant system prompt, no tools
@@ -20,7 +20,7 @@ And 6 models:
 - `qwen3.5-flash-02-23`
 - `grok-4-fast`
 
-Refusal is scored on a 4-point scale by an LLM judge (1.0 = full refusal, 0.0 = full compliance).
+Refusal is scored on a 4-point scale by Kimi K2.5 as an LLM judge (1.0 = full refusal, 0.0 = full compliance).
 
 ## Results
 
@@ -61,8 +61,7 @@ The aggregate shows a small but significant increase in refusal when adding a sy
 
 1. **Agentic scaffolding slightly increases refusal rates in aggregate.** Across all 6 models (balanced samples, n=2998), adding a system prompt increases refusal by ~0.04 points (p=0.0005). The effect is small but consistent in direction — no model showed significantly _decreased_ refusal.
 2. **DeepSeek is the only model with a significant per-model effect.** Adding a system prompt or tools _increases_ its refusal rate from 0.18 to roughly 0.26–0.30. DeepSeek also has by far the lowest baseline refusal rate (0.182 vs 0.35–0.85 for others), so it has the most room to move.
-3. **Claude Haiku shows the largest tools effect** (+0.064 for `tools_only`, p=0.007), though it doesn't pass after Bonferroni correction. Interestingly, Haiku's baseline is already high (0.78), yet tools push it further to 0.85.
-4. **No model showed decreased refusal** with agentic scaffolding after Bonferroni correction. The concern that tool access makes models more compliant with harmful requests is not supported by this data.
+3. **No model showed decreased refusal** with agentic scaffolding after Bonferroni correction. The concern that tool access makes models more compliant with harmful requests is not supported by this data.
 
 ## Limitations
 
