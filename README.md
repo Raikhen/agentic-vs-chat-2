@@ -1,10 +1,10 @@
 # Agentic v.s. Chat
 
-We tested whether adding SWE agentic scaffolding (system prompts and/or tool access) changes how often LLMs refuse harmful requests. Across 6 models and ~12,000 scored samples, we find that agentic scaffolding **does not decrease refusal** — if anything, it slightly increases it. The only model with a statistically significant per-model effect is DeepSeek v3.2, which refuses *more* when given tools or a system prompt (+0.10 on a 0–1 scale, p < 0.0001). In aggregate, adding a system prompt increases refusal by ~0.04 points (p = 0.0005). These results are consistent with [aryaj (2026)](https://www.lesswrong.com/posts/Tk4SF8qFdMrzGJGGw/how-well-do-models-follow-their-constitutions), who found that "complex scaffolds don't seem to affect agent alignment much."
+I tested whether adding SWE agentic scaffolding (system prompts and/or tool access) changes how often LLMs refuse harmful requests. Across 6 models and ~12,000 scored samples, I find that agentic scaffolding **does not decrease refusal** — if anything, it slightly increases it. The only model with a statistically significant per-model effect is DeepSeek v3.2, which refuses *more* when given tools or a system prompt (+0.10 on a 0–1 scale, p < 0.0001). In aggregate, adding a system prompt increases refusal by ~0.04 points (p = 0.0005). These results are consistent with [aryaj (2026)](https://www.lesswrong.com/posts/Tk4SF8qFdMrzGJGGw/how-well-do-models-follow-their-constitutions), who found that "complex scaffolds don't seem to affect agent alignment much."
 
 ## Methodology
 
-We test 500 adversarial prompts from the Fortress dataset across 4 conditions on 6 models (`claude-haiku-4.5`, `gpt-5.4-mini`, `deepseek-v3.2`, `gemini-3-flash-preview`, `qwen3.5-flash-02-23`, `grok-4-fast`):
+I test 500 adversarial prompts from the Fortress dataset across 4 conditions on 6 models (`claude-haiku-4.5`, `gpt-5.4-mini`, `deepseek-v3.2`, `gemini-3-flash-preview`, `qwen3.5-flash-02-23`, `grok-4-fast`):
 
 1. **Bare Chat** — no system prompt, no tools
 2. **System Prompt** — coding assistant system prompt, no tools
@@ -21,9 +21,9 @@ Refusal is scored on a 4-point scale by an LLM judge (1.0 = full refusal, 0.0 = 
 
 ### Statistical significance (permutation tests, Bonferroni-corrected)
 
-We ran two-sided permutation tests (10,000 permutations) comparing each condition to `bare_chat`, both per-model (6 models × 3 comparisons) and in aggregate using balanced samples (3 comparisons). With 21 total comparisons, the Bonferroni-corrected threshold is p < 0.0024.
+I ran two-sided permutation tests (10,000 permutations) comparing each condition to `bare_chat`, both per-model (6 models × 3 comparisons) and in aggregate using balanced samples (3 comparisons). With 21 total comparisons, the Bonferroni-corrected threshold is p < 0.0024.
 
-For the aggregate test, we use balanced samples: for each model, we keep only the sample IDs that were evaluated in all 4 conditions. This avoids Simpson's Paradox while including data from all 6 models (n=2998 per condition).
+For the aggregate test, I use balanced samples: for each model, I keep only the sample IDs that were evaluated in all 4 conditions. This avoids Simpson's Paradox while including data from all 6 models (n=2998 per condition).
 
 **Per-model: DeepSeek v3.2 shows the strongest effects:**
 

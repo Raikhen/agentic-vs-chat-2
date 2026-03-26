@@ -33,14 +33,16 @@ CONDITION_COLORS = {
 COMBINED_CONDITION = "system_prompt_and_tools"
 
 
+plt.rcParams["hatch.linewidth"] = 4.5
+
+
 def _apply_stripes(bars, conditions):
-    """Add orange diagonal stripes to the combined condition bar."""
+    """Add blue diagonal stripes to the combined condition bar."""
     for bar, cond in zip(bars, conditions):
         if cond == COMBINED_CONDITION:
             bar.set_hatch("//")
             bar.set_edgecolor("#4A90D9")
             bar.set_linewidth(0.5)
-    plt.rcParams["hatch.linewidth"] = 4.5
 
 
 def bootstrap_ci(
