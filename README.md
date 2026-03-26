@@ -4,12 +4,21 @@ I tested whether adding SWE agentic scaffolding (system prompts and/or tool acce
 
 ## Methodology
 
-I test 500 adversarial prompts from the Fortress dataset across 4 conditions on 6 models (`claude-haiku-4.5`, `gpt-5.4-mini`, `deepseek-v3.2`, `gemini-3-flash-preview`, `qwen3.5-flash-02-23`, `grok-4-fast`):
+I test 500 adversarial prompts from the Fortress dataset across 4 conditions:
 
 1. **Bare Chat** — no system prompt, no tools
 2. **System Prompt** — coding assistant system prompt, no tools
 3. **Tools** — `python()` and `text_editor()` tools (Docker sandbox), no system prompt
 4. **System Prompt + Tools** — both
+
+And 6 models:
+
+- `claude-haiku-4.5`
+- `gpt-5.4-mini`
+- `deepseek-v3.2`
+- `gemini-3-flash-preview`
+- `qwen3.5-flash-02-23`
+- `grok-4-fast`
 
 Refusal is scored on a 4-point scale by an LLM judge (1.0 = full refusal, 0.0 = full compliance).
 
