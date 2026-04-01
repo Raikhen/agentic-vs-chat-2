@@ -8,20 +8,13 @@ import shared.persistent_sandbox  # noqa: F401  # register persistent_docker san
 
 from inspect_ai import eval
 
-_task_mod = importlib.import_module("experiments.01_unrelated_tools.task")
+from shared.models import DEFAULT_MODELS
+
+_task_mod = importlib.import_module("experiments.unrelated_tools.task")
 bare_chat = _task_mod.bare_chat
 system_prompt_only = _task_mod.system_prompt_only
 tools_only = _task_mod.tools_only
 system_prompt_and_tools = _task_mod.system_prompt_and_tools
-
-DEFAULT_MODELS = [
-    "anthropic_fallback/claude-haiku-4.5",
-    "openai/gpt-5.4-mini",
-    "openrouter/google/gemini-3-flash-preview",
-    "openrouter/deepseek/deepseek-v3.2",
-    "openrouter/qwen/qwen3.5-flash-02-23",
-    "openrouter/x-ai/grok-4-fast",
-]
 
 
 def parse_args():
@@ -61,7 +54,7 @@ def parse_args():
     parser.add_argument(
         "--log-dir",
         type=str,
-        default="logs/01_unrelated_tools",
+        default="logs/unrelated_tools",
         help="Directory for eval logs",
     )
     return parser.parse_args()

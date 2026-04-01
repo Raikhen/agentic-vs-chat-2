@@ -12,12 +12,12 @@ As LLMs are increasingly deployed as agents with tool access and system prompts,
 
 Most models maintain similar refusal rates across all four conditions. Claude Haiku 4.5 and GPT-5.4 Mini refuse at high rates (~0.85) regardless of scaffolding. Gemini 3 Flash, Qwen 3.5 Flash, and Grok 4 Fast cluster around 0.35–0.45 with overlapping confidence intervals across conditions. The clear outlier is DeepSeek v3.2, which starts with a much lower baseline (~0.18) and shows visible increases when any scaffolding is added.
 
-![Refusal Rate by Condition per Model](figures/01_unrelated_tools/refusal_by_condition_per_model.png)
+![Refusal Rate by Condition per Model](figures/unrelated_tools/refusal_by_condition_per_model.png)
 *Mean refusal rate per model across the four scaffolding conditions. Error bars show 95% bootstrapped confidence intervals.*
 
 Aggregating across all models, the trend is small but consistent: every scaffolding condition shows a higher mean refusal than bare chat (baseline = 0.555). Adding a system prompt (with or without tools) produces a statistically significant ~7–8% relative increase that survives Bonferroni correction. Adding tools alone shows a similar trend (+6%) but does not reach significance after correction.
 
-![Refusal Rate by Condition](figures/01_unrelated_tools/refusal_by_condition.png)
+![Refusal Rate by Condition](figures/unrelated_tools/refusal_by_condition.png)
 *Aggregate refusal rate across all models by condition. Error bars show 95% bootstrapped confidence intervals.*
 
 ## Methodology
@@ -55,11 +55,11 @@ conda activate avsc2
 pip install -e .
 
 # Run the experiment (requires OPENROUTER_API_KEY)
-python experiments/01_unrelated_tools/run.py
+python experiments/unrelated_tools/run.py
 
 # Analyze results
-python experiments/01_unrelated_tools/analyze.py
+python experiments/unrelated_tools/analyze.py
 
 # Generate figures
-python experiments/01_unrelated_tools/plot.py
+python experiments/unrelated_tools/plot.py
 ```
