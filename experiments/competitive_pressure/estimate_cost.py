@@ -14,7 +14,7 @@ from shared.dataset import fortress_dataset
 
 # Pricing per 1M tokens (input, output) in USD
 MODEL_PRICING = {
-    "anthropic_fallback/claude-haiku-4.5": ("Claude Haiku 4.5", 1.00, 5.00),
+    "openrouter/anthropic/claude-haiku-4.5": ("Claude Haiku 4.5", 1.00, 5.00),
     "openai/gpt-5.4-mini": ("GPT-5.4-mini", 0.15, 0.60),
     "openrouter/google/gemini-3-flash-preview": ("Gemini 3 Flash", 0.10, 0.40),
     "openrouter/deepseek/deepseek-v3.2": ("DeepSeek V3.2", 0.14, 0.28),
