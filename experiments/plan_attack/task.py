@@ -14,6 +14,16 @@ from shared.scorer import refusal_scorer
 PLANS_FILE = Path("data/plan_attack/plans.jsonl")
 
 
+def _load_rubrics() -> dict[int, list[str]]:
+    """Load per-prompt rubrics from the Fortress dataset, keyed by index."""
+    ds = fortress_dataset()
+    rubrics = {}
+    for i, sample in enumerate(ds):
+        sid = sample.id if sample.id is not None else i + 1
+        rubrics[sid] = sample.metadata.get("rubric", [])
+    return rubrics
+
+
 def _load_plan_dataset(limit: int | None = None) -> list[Sample]:
     """Load plan versions of adversarial prompts from the pre-generated JSONL file."""
     if not PLANS_FILE.exists():
@@ -22,6 +32,8 @@ def _load_plan_dataset(limit: int | None = None) -> list[Sample]:
             "Run 'python -m experiments.plan_attack.generate_plans' first."
         )
 
+    rubrics = _load_rubrics()
+
     samples = []
     with open(PLANS_FILE) as f:
         for line in f:
@@ -29,20 +41,24 @@ def _load_plan_dataset(limit: int | None = None) -> list[Sample]:
             if not line:
                 continue
             entry = json.loads(line)
+            # Only use deepseek plans for the experiment
+            if entry.get("model_used") != "deepseek/deepseek-v3.2":
+                continue
+            sid = entry["sample_id"]
             samples.append(
                 Sample(
                     input=entry["plan_prompt"],
                     target=entry.get("adversarial_prompt", ""),
-                    id=entry["sample_id"],
+                    id=sid,
                     metadata={
                         "risk_domain": entry.get("risk_domain", "unknown"),
                         "risk_subdomain": entry.get("risk_subdomain", "unknown"),
                         "original_prompt": entry.get("adversarial_prompt", ""),
+                        "rubric": rubrics.get(sid, []),
                     },
                 )
             )
 
-    # Sort by sample_id for consistency
     samples.sort(key=lambda s: s.id)
 
     if limit is not None:
